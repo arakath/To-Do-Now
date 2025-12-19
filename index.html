@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه مدیریت کارها</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --light-bg: #F5F7FA;
+            --light-card: #FFFFFF;
+            --light-text: #2D3748;
+            --light-border: #E2E8F0;
+            --dark-bg: #1A202C;
+            --dark-card: #2D3748;
+            --dark-text: #F7FAFC;
+            --dark-border: #4A5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* هدر */
+        .header {
+            background-color: var(--light-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        body.dark-mode .header {
+            background-color: var(--dark-card);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .icon-button {
+            background-color: var(--dark-border);
+        }
+
+        .icon-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* فرم افزودن کار */
+        .add-form {
+            background-color: var(--light-card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        body.dark-mode .add-form {
+            background-color: var(--dark-card);
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--light-text);
+        }
+
+        body.dark-mode .form-title {
+            color: var(--dark-text);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--light-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .task-input {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            border-color: var(--dark-border);
+        }
+
+        .add-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .add-button:hover {
+            background-color: #4338CA;
+        }
+
+        /* فیلترها */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background-color: var(--light-card);
+            border: 2px solid var(--light-border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .filter-btn {
+            background-color: var(--dark-card);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* لیست کارها */
+        .tasks-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background-color: var(--light-card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        body.dark-mode .task-item {
+            background-color: var(--dark-card);
+        }
+
+        .task-checkbox {
+            min-width: 24px;
+            min-height: 24px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .task-checkbox.completed {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .task-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .task-category {
+            background-color: var(--dark-bg);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .delete-btn {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* حالت خالی */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: var(--light-border);
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .empty-state i {
+            color: var(--dark-border);
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--light-text);
+        }
+
+        body.dark-mode .empty-state h3 {
+            color: var(--dark-text);
+        }
+
+        /* منو */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 300px;
+            background-color: var(--light-card);
+            z-index: 1001;
+            padding: 30px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            overflow-y: auto;
+        }
+
+        body.dark-mode .menu {
+            background-color: var(--dark-card);
+        }
+
+        .menu.active {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+
+        body.dark-mode .close-menu {
+            color: var(--dark-text);
+        }
+
+        .auth-form {
+            margin-top: 30px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--light-border);
+            border-radius: 6px;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        body.dark-mode .form-input {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            border-color: var(--dark-border);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .switch-auth {
+            text-align: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* بارگذاری */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        body.dark-mode .loading {
+            background-color: var(--dark-bg);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light-border);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* رسپانسیو */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .add-form {
+                padding: 20px;
+            }
+            
+            .menu {
+                width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه بارگذاری -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>در حال بارگذاری...</p>
+    </div>
+
+    <!-- محتوای اصلی -->
+    <div class="container" id="app" style="display: none;">
+        <!-- هدر -->
+        <header class="header">
+            <h1 class="header-title">📝 برنامه مدیریت کارها</h1>
+            <div class="header-controls">
+                <button class="icon-button" id="menuButton">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="icon-button" id="themeButton">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- فرم افزودن کار -->
+        <section class="add-form">
+            <h2 class="form-title">افزودن کار جدید</h2>
+            <div class="input-group">
+                <input type="text" class="task-input" id="taskInput" placeholder="عنوان کار را وارد کنید...">
+                <button class="add-button" id="addButton">افزودن کار</button>
+            </div>
+        </section>
+
+        <!-- فیلترها -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">همه کارها</button>
+            <button class="filter-btn" data-filter="active">کارهای فعال</button>
+            <button class="filter-btn" data-filter="completed">تکمیل شده</button>
+        </div>
+
+        <!-- لیست کارها -->
+        <div class="tasks-list" id="tasksList">
+            <!-- کارها اینجا نمایش داده می‌شوند -->
+        </div>
+
+        <!-- حالت خالی -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-clipboard-list"></i>
+            <h3>هیچ کاری وجود ندارد</h3>
+            <p>اولین کار خود را اضافه کنید!</p>
+        </div>
+    </div>
+
+    <!-- منو -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="menu" id="menu">
+        <div class="menu-header">
+            <h2>منو</h2>
+            <button class="close-menu" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="menuContent">
+            <!-- محتوای منو بر اساس وضعیت کاربر تغییر می‌کند -->
+        </div>
+    </div>
+
+    <script>
+        // وضعیت برنامه
+        let state = {
+            tasks: [],
+            filter: 'all',
+            darkMode: false,
+            user: null,
+            isLogin: true
+        };
+
+        // DOM Elements
+        const app = document.getElementById('app');
+        const loading = document.getElementById('loading');
+        const menuButton = document.getElementById('menuButton');
+        const themeButton = document.getElementById('themeButton');
+        const taskInput = document.getElementById('taskInput');
+        const addButton = document.getElementById('addButton');
+        const tasksList = document.getElementById('tasksList');
+        const emptyState = document.getElementById('emptyState');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menu = document.getElementById('menu');
+        const closeMenu = document.getElementById('closeMenu');
+        const menuContent = document.getElementById('menuContent');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        // مقداردهی اولیه برنامه
+        function init() {
+            // بارگذاری داده‌ها از localStorage
+            loadData();
+            
+            // مخفی کردن صفحه بارگذاری
+            setTimeout(() => {
+                loading.style.display = 'none';
+                app.style.display = 'block';
+                renderTasks();
+            }, 1000);
+            
+            // تنظیم رویدادها
+            setupEventListeners();
+        }
+
+        // بارگذاری داده‌ها
+        function loadData() {
+            // بارگذاری کارها
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+                state.tasks = JSON.parse(savedTasks);
+            }
+            
+            // بارگذاری حالت تاریک
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                state.darkMode = true;
+                document.body.classList.add('dark-mode');
+                themeButton.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // بارگذاری کاربر
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                state.user = JSON.parse(savedUser);
+            }
+        }
+
+        // ذخیره داده‌ها
+        function saveData() {
+            localStorage.setItem('tasks', JSON.stringify(state.tasks));
+            localStorage.setItem('darkMode', state.darkMode);
+            if (state.user) {
+                localStorage.setItem('user', JSON.stringify(state.user));
+            }
+        }
+
+        // تنظیم رویدادها
+        function setupEventListeners() {
+            // دکمه افزودن کار
+            addButton.addEventListener('click', addTask);
+            
+            // کلید Enter در فیلد ورود
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+            
+            // دکمه منو
+            menuButton.addEventListener('click', openMenu);
+            
+            // بستن منو
+            closeMenu.addEventListener('click', closeMenuFunc);
+            menuOverlay.addEventListener('click', closeMenuFunc);
+            
+            // دکمه تغییر تم
+            themeButton.addEventListener('click', toggleTheme);
+            
+            // فیلترها
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // حذف کلاس active از همه دکمه‌ها
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // اضافه کردن کلاس active به دکمه انتخاب شده
+                    button.classList.add('active');
+                    
+                    // تغییر فیلتر
+                    state.filter = button.dataset.filter;
+                    
+                    // رندر مجدد کارها
+                    renderTasks();
+                });
+            });
+        }
+
+        // افزودن کار جدید
+        function addTask() {
+            const title = taskInput.value.trim();
+            
+            if (!title) {
+                alert('لطفا عنوان کار را وارد کنید');
+                return;
+            }
+            
+            const newTask = {
+                id: Date.now(),
+                title: title,
+                completed: false,
+                category: 'عمومی',
+                priority: 'متوسط',
+                date: new Date().toLocaleDateString('fa-IR'),
+                time: new Date().toLocaleTimeString('fa-IR', {hour: '2-digit', minute:'2-digit'})
+            };
+            
+            state.tasks.unshift(newTask);
+            taskInput.value = '';
+            
+            // ذخیره و رندر
+            saveData();
+            renderTasks();
+        }
+
+        // تغییر وضعیت کار
+        function toggleTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveData();
+                renderTasks();
+            }
+        }
+
+        // حذف کار
+        function deleteTask(id) {
+            if (confirm('آیا مطمئنید که می‌خواهید این کار را حذف کنید؟')) {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                saveData();
+                renderTasks();
+            }
+        }
+
+        // رندر کارها
+        function renderTasks() {
+            // فیلتر کردن کارها
+            let filteredTasks = state.tasks;
+            
+            if (state.filter === 'active') {
+                filteredTasks = state.tasks.filter(task => !task.completed);
+            } else if (state.filter === 'completed') {
+                filteredTasks = state.tasks.filter(task => task.completed);
+            }
+            
+            // نمایش یا مخفی کردن حالت خالی
+            if (filteredTasks.length === 0) {
+                tasksList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // ایجاد HTML کارها
+            let tasksHTML = '';
+            
+            filteredTasks.forEach(task => {
+                tasksHTML += `
+                    <div class="task-item">
+                        <div class="task-checkbox ${task.completed ? 'completed' : ''}" 
+                             onclick="window.toggleTask(${task.id})">
+                            ${task.completed ? '✓' : ''}
+                        </div>
+                        <div class="task-content">
+                            <h3 class="task-title ${task.completed ? 'completed' : ''}">
+                                ${task.title}
+                            </h3>
+                            <div class="task-category">${task.category}</div>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <small style="color: #666;">${task.date}</small>
+                                <small style="color: #666;">${task.time}</small>
+                                <small style="color: #666;">اولویت: ${task.priority}</small>
+                            </div>
+                            <div class="task-actions">
+                                <button class="action-btn delete-btn" onclick="window.deleteTask(${task.id})">
+                                    <i class="fas fa-trash"></i>
+                                    حذف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tasksList.innerHTML = tasksHTML;
+        }
+
+        // باز کردن منو
+        function openMenu() {
+            menuOverlay.classList.add('active');
+            menu.classList.add('active');
+            renderMenu();
+        }
+
+        // بستن منو
+        function closeMenuFunc() {
+            menuOverlay.classList.remove('active');
+            menu.classList.remove('active');
+        }
+
+        // رندر منو
+        function renderMenu() {
+            let menuHTML = '';
+            
+            if (state.user) {
+                // منوی کاربر واردشده
+                menuHTML = `
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <i class="fas fa-user-circle" style="font-size: 60px; color: var(--primary-color); margin-bottom: 15px;"></i>
+                        <h3>${state.user.name}</h3>
+                        <p style="color: #666; font-size: 14px;">${state.user.email}</p>
+                    </div>
+                    <button class="auth-btn" onclick="window.logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        خروج از حساب
+                    </button>
+                `;
+            } else {
+                // منوی احراز هویت
+                menuHTML = `
+                    <div class="auth-form">
+                        <h3 style="margin-bottom: 20px;">${state.isLogin ? 'ورود به حساب' : 'ثبت‌نام'}</h3>
+                        
+                        ${!state.isLogin ? `
+                            <input type="text" class="form-input" id="nameInput" placeholder="نام و نام خانوادگی">
+                        ` : ''}
+                        
+                        <input type="email" class="form-input" id="emailInput" placeholder="ایمیل">
+                        <input type="password" class="form-input" id="passwordInput" placeholder="رمز عبور">
+                        
+                        ${!state.isLogin ? `
+                            <input type="password" class="form-input" id="confirmPasswordInput" placeholder="تکرار رمز عبور">
+                        ` : ''}
+                        
+                        <button class="auth-btn" onclick="window.handleAuth()">
+                            ${state.isLogin ? 'ورود' : 'ثبت‌نام'}
+                        </button>
+                        
+                        <div class="switch-auth" onclick="window.switchAuthMode()">
+                            ${state.isLogin ? 'حساب کاربری ندارید؟ ثبت‌نام کنید' : 'قبلاً ثبت‌نام کرده‌اید؟ وارد شوید'}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            menuContent.innerHTML = menuHTML;
+        }
+
+        // تغییر حالت احراز هویت
+        function switchAuthMode() {
+            state.isLogin = !state.isLogin;
+            renderMenu();
+        }
+
+        // مدیریت احراز هویت
+        function handleAuth() {
+            const email = document.getElementById('emailInput')?.value.trim();
+            const password = document.getElementById('passwordInput')?.value.trim();
+            
+            if (!email || !password) {
+                alert('لطفا ایمیل و رمز عبور را وارد کنید');
+                return;
+            }
+            
+            if (!state.isLogin) {
+                const name = document.getElementById('nameInput')?.value.trim();
+                const confirmPassword = document.getElementById('confirmPasswordInput')?.value.trim();
+                
+                if (!name) {
+                    alert('لطفا نام خود را وارد کنید');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('رمز عبور و تکرار آن مطابقت ندارند');
+                    return;
+                }
+                
+                // ثبت‌نام
+                state.user = {
+                    name: name,
+                    email: email,
+                    password: password // در برنامه واقعی اینجا رمزنگاری می‌شود
+                };
+                
+                alert('حساب کاربری با موفقیت ایجاد شد!');
+            } else {
+                // ورود (در این مثال ساده، هر ایمیل و رمز عبور پذیرفته می‌شود)
+                state.user = {
+                    name: 'کاربر مهمان',
+                    email: email
+                };
+                
+                alert('ورود موفقیت‌آمیز بود!');
+            }
+            
+            saveData();
+            closeMenuFunc();
+        }
+
+        // خروج از حساب
+        function logout() {
+            state.user = null;
+            saveData();
+            closeMenuFunc();
+            renderMenu();
+        }
+
+        // تغییر حالت تاریک/روشن
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            document.body.classList.toggle('dark-mode', state.darkMode);
+            
+            // تغییر آیکون
+            const icon = themeButton.querySelector('i');
+            if (state.darkMode) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+            
+            saveData();
+        }
+
+        // شروع برنامه
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // توابع عمومی برای استفاده در HTML
+        window.toggleTask = toggleTask;
+        window.deleteTask = deleteTask;
+        window.switchAuthMode = switchAuthMode;
+        window.handleAuth = handleAuth;
+        window.logout = logout;
+        window.openMenu = openMenu;
+        window.toggleTheme = toggleTheme;
+    </script>
+</body>
+</html>
